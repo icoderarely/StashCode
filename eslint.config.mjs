@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Prisma emits TypeScript source, not compiled JS, so it lands in lint's path.
+    "src/generated/**",
   ]),
 ]);
 
