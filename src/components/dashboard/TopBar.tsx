@@ -1,9 +1,13 @@
-import { Plus, Search } from "lucide-react";
+import { PanelLeft, Plus, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export function TopBar() {
+interface TopBarProps {
+  onToggleSidebar: () => void;
+}
+
+export function TopBar({ onToggleSidebar }: TopBarProps) {
   return (
     <header className="flex h-14 items-center justify-between gap-4 border-b border-border bg-card px-4">
       <div className="flex items-center gap-2">
@@ -13,6 +17,14 @@ export function TopBar() {
         <span className="text-sm font-semibold text-foreground">
           stashcode
         </span>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={onToggleSidebar}
+          aria-label="Toggle sidebar"
+        >
+          <PanelLeft />
+        </Button>
       </div>
 
       <div className="flex flex-1 items-center justify-end gap-3">

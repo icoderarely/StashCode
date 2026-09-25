@@ -36,6 +36,8 @@ export interface Collection {
   id: string;
   name: string;
   itemIds: string[];
+  isFavorite: boolean;
+  updatedAt: string;
 }
 
 export const currentUser: User = {
@@ -135,25 +137,35 @@ export const collections: Collection[] = [
     id: "collection-react-patterns",
     name: "React Patterns",
     itemIds: ["item-1", "item-6"],
+    isFavorite: true,
+    updatedAt: "2024-09-24T09:58:00Z",
   },
   {
     id: "collection-ai-prompts",
     name: "AI Prompts",
     itemIds: ["item-2"],
+    isFavorite: true,
+    updatedAt: "2024-09-24T09:42:00Z",
   },
   {
     id: "collection-terminal-commands",
     name: "Terminal Commands",
     itemIds: ["item-3"],
+    isFavorite: false,
+    updatedAt: "2024-09-24T09:00:00Z",
   },
   {
     id: "collection-personal-notes",
     name: "Personal Notes",
     itemIds: ["item-4"],
+    isFavorite: false,
+    updatedAt: "2024-09-23T10:00:00Z",
   },
   {
     id: "collection-resources",
     name: "Resources",
     itemIds: ["item-5"],
+    isFavorite: false,
+    updatedAt: "2024-09-23T09:00:00Z",
   },
 ];
