@@ -386,6 +386,13 @@ Full design tokens, components, and layout rules live in `[design.md](./design.m
 - Syntax highlighting in code blocks
 - Toasts for actions, skeleton loaders while fetching, smooth hover/transition micro-interactions
 
+### Screenshots
+
+Refer to the screenshots below as a base for the dasboard UI. It does not have to be exact. Use it as a reference:
+
+- @context/screenshots/dashboard-ui-main.png
+- @context/screenshots/dasboard-ui-drawer.png
+
 ### Item type → color & icon
 
 | Type    | Color   | Hex       | Icon (lucide-react)                                  |
