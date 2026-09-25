@@ -1,4 +1,4 @@
-import { PanelLeft, Plus, Search } from "lucide-react";
+import { PanelLeft, Plus, Search, Settings } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +37,9 @@ export function TopBar({ onToggleSidebar }: TopBarProps) {
             disabled
           />
         </div>
+        <Button variant="ghost" size="icon-sm" aria-label="Settings">
+          <Settings />
+        </Button>
         <Button size="sm">
           <Plus />
           New item
