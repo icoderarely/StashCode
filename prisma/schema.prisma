@@ -1,0 +1,191 @@
+// Prisma 7: the `prisma-client` generator replaces `prisma-client-js` and
+// requires an explicit `output`. Connection URLs live in prisma.config.ts.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Auth.js (NextAuth v5) required models ──────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ── Core domain models ──────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String? // null if GitHub-only account
+
+  isPro                Boolean @default(false)
+  stripeCustomerId     String? @unique
+  stripeSubscriptionId String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts    Account[]
+  sessions    Session[]
+  items       Item[]
+  itemTypes   ItemType[]
+  collections Collection[]
+  tags        Tag[]
+}
+
+enum ContentType {
+  TEXT
+  URL
+  FILE
+}
+
+model ItemType {
+  id       String  @id @default(cuid())
+  name     String
+  icon     String // lucide-react icon name, e.g. "Code"
+  color    String // hex, e.g. "#3b82f6"
+  isSystem Boolean @default(false)
+
+  userId String? // null for system types
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  items                Item[]
+  defaultForCollection Collection[]
+
+  @@unique([userId, name])
+}
+
+model Item {
+  id          String      @id @default(cuid())
+  title       String
+  contentType ContentType
+
+  content String? @db.Text // for TEXT types, null otherwise
+  url     String? // for URL type, null otherwise
+
+  fileUrl  String? // R2 object URL, null unless FILE
+  fileName String?
+  fileSize Int? // bytes
+
+  description String?
+  language    String? // optional, code snippets only
+
+  isFavorite Boolean @default(false)
+  isPinned   Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  itemTypeId String
+  itemType   ItemType @relation(fields: [itemTypeId], references: [id])
+
+  collections ItemCollection[]
+  tags        ItemTag[]
+
+  @@index([userId])
+  @@index([itemTypeId])
+  @@index([userId, isPinned])
+  @@index([userId, isFavorite])
+}
+
+model Collection {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  isFavorite  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  defaultTypeId String?
+  defaultType   ItemType? @relation(fields: [defaultTypeId], references: [id])
+
+  items ItemCollection[]
+
+  @@index([userId])
+  @@index([defaultTypeId])
+}
+
+model ItemCollection {
+  itemId       String
+  collectionId String
+  addedAt      DateTime @default(now())
+
+  item       Item       @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@id([itemId, collectionId])
+  @@index([collectionId])
+}
+
+model Tag {
+  id   String @id @default(cuid())
+  name String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  items ItemTag[]
+
+  @@unique([userId, name])
+}
+
+model ItemTag {
+  itemId String
+  tagId  String
+
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([itemId, tagId])
+  @@index([tagId])
+}
