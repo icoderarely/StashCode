@@ -2,9 +2,13 @@ import Link from "next/link";
 import { FolderPlus } from "lucide-react";
 
 import { CollectionCard } from "@/components/dashboard/CollectionCard";
-import { collections } from "@/lib/mock-data";
+import { getRecentCollections } from "@/lib/db/collections";
+import { getCurrentUserId } from "@/lib/db/user";
 
-export function CollectionsSection() {
+export async function CollectionsSection() {
+  const userId = await getCurrentUserId();
+  const collections = userId ? await getRecentCollections(userId) : [];
+
   return (
     <section>
       <div className="mb-3 flex items-center justify-between">
@@ -17,11 +21,17 @@ export function CollectionsSection() {
           New collection
         </Link>
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        {collections.map((collection) => (
-          <CollectionCard key={collection.id} collection={collection} />
-        ))}
-      </div>
+      {collections.length === 0 ? (
+        <p className="rounded-xl border border-border bg-card p-4 text-sm text-muted-foreground">
+          No collections yet. Create one to start grouping your stash.
+        </p>
+      ) : (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {collections.map((collection) => (
+            <CollectionCard key={collection.id} collection={collection} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
