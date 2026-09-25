@@ -17,3 +17,5 @@
 ## History
 
 <!-- Keep this update. Earliest to latest -->
+
+- **Dashboard UI Phase 1** — ShadCN UI init, dashboard route at /dashboard, dark mode by default, top bar with search and new item button (display only), placeholder sidebar/main areas.
