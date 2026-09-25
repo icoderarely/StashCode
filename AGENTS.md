@@ -7,3 +7,17 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# StashCode
+
+A developer knowledge hub for snippets, commands, prompts, notes, files, images, links and custom types.
+
+## Context Files
+
+Read the following to get the full context of the project:
+
+- @context/project-overview.md
+- @context/coding-standards.md
+- @context/ai-interaction.md
+- @context/current-feature.md
+- @context/design.md
