@@ -2,33 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Code,
-  File,
-  Folder,
-  Image as ImageIcon,
-  Inbox,
-  LayoutGrid,
-  Link as LinkIcon,
-  Sparkles,
-  Star,
-  StickyNote,
-  Terminal,
-  type LucideIcon,
-} from "lucide-react";
+import { Folder, Inbox, LayoutGrid, Star, type LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { TYPE_ICONS } from "@/lib/item-type-icons";
 import { type Collection, collections, currentUser, itemTypes, items } from "@/lib/mock-data";
-
-const TYPE_ICONS: Record<string, LucideIcon> = {
-  Code,
-  Sparkles,
-  Terminal,
-  StickyNote,
-  File,
-  Image: ImageIcon,
-  Link: LinkIcon,
-};
 
 function initials(name: string) {
   return name
