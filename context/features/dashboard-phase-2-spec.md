@@ -6,13 +6,12 @@ This is phase 2 of 3 for the dashboard UI layout. Use the screenshot referenced 
 
 ## Requirements for phase 2
 
-- Collapsible sidebar
-- Items/types with links to /items/TYPE (eg.items/snippets)
-- Favorite collections
-- Most recent collections
-- User avatar area at the bottom
-- Drawer icon to open/close sidebar
-- Always a drawer on mobile view
+- Collapsible sidebar, toggled by a drawer icon next to the logo (top-left of sidebar header)
+- Top-level nav: Overview, All items (with total count badge), Favorites (with favorited-item count badge)
+- "ITEM TYPES" section — one row per type (Snippet, Prompt, Command, Note, Link, File), each with a colored icon, linking to /items/TYPE (eg. /items/snippets)
+- "COLLECTIONS" section — lists all of the user's collections (folder icon + name), not filtered to favorites
+- User avatar area at the bottom — avatar initials, full name, and workspace/plan label (e.g. "Free workspace")
+- Always a drawer (overlay) on mobile view
 
 ## References
 
