@@ -1,6 +1,7 @@
 import { Inbox, Folder, Star, Heart, type LucideIcon } from "lucide-react";
 
-import { collections, items } from "@/lib/mock-data";
+import { getDashboardStats } from "@/lib/db/stats";
+import { getCurrentUserId } from "@/lib/db/user";
 
 interface Stat {
   label: string;
@@ -9,19 +10,19 @@ interface Stat {
   color: string;
 }
 
-export function StatsCards() {
+const EMPTY_STATS = { items: 0, collections: 0, favoriteItems: 0, favoriteCollections: 0 };
+
+export async function StatsCards() {
+  const userId = await getCurrentUserId();
+  const counts = userId ? await getDashboardStats(userId) : EMPTY_STATS;
+
   const stats: Stat[] = [
-    { label: "Items", value: items.length, icon: Inbox, color: "#6366f1" },
-    { label: "Collections", value: collections.length, icon: Folder, color: "#10b981" },
-    {
-      label: "Favorite items",
-      value: items.filter((item) => item.isFavorite).length,
-      icon: Star,
-      color: "#facc15",
-    },
+    { label: "Items", value: counts.items, icon: Inbox, color: "#6366f1" },
+    { label: "Collections", value: counts.collections, icon: Folder, color: "#10b981" },
+    { label: "Favorite items", value: counts.favoriteItems, icon: Star, color: "#facc15" },
     {
       label: "Favorite collections",
-      value: collections.filter((collection) => collection.isFavorite).length,
+      value: counts.favoriteCollections,
       icon: Heart,
       color: "#ec4899",
     },
