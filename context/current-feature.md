@@ -1,18 +1,27 @@
-# Current Feature
+# Current Feature: Add Pro Badge to Sidebar
 
-<!-- Feature name and short description -->
+Add a PRO badge to the File and Image item types in the sidebar.
 
 ## Status
 
-Completed
+In Progress
 
 ## Goals
 
-<!-- Goals and requirements -->
+- File and Image entries in the sidebar's "Item types" list show a PRO badge
+- Badge uses the shadcn/ui `Badge` component
+- Badge is clean and subtle
+- Badge text reads `PRO`, all uppercase
 
 ## Notes
 
-<!-- Any extra notes -->
+- Spec: `context/features/add-pro-badge-sidebar.md`
+- The shadcn `Badge` isn't installed yet (`src/components/ui/` only has `button` and `input`), so it needs adding via the shadcn CLI.
+- design.md's Pro Badge: pill (`--radius-badge`), `--color-pro` background at 15% opacity, `--color-pro` text, `--text-caption` weight 600. `--color-pro` (`#facc15`) already exists in `globals.css`, and the sidebar uses it as `fill-pro` / `text-pro` for the favorite star.
+- `NavLink` in `Sidebar.tsx` already has a `trailing` slot (used by `CollectionLink` for the star), which can hold the badge next to the count.
+- Pro-gating stays display-only: per project-overview.md, every feature remains unlocked during development.
+- Collapsed 64px icon rail: the badge hides with the label and count (default kept; user didn't object).
+- Implementation: `npx shadcn add badge` → `src/components/ui/badge.tsx` (imports `cn` from shadcn's `cn` package, same as `button.tsx`). New `src/lib/pro.ts` → `isProItemType(name)` over a `File`/`Image` set: `ItemType` has no pro column, and this is the gating foundation later work can reuse. `NavLink` gained a `pro` prop that renders the badge right after the label, inside the `flex-1` span, so the right-hand counts stay aligned in one column. `trailing` wasn't used because it renders *after* the count. Styling: `h-4 px-1.5 text-[10px] font-semibold tracking-wide`, with `bg-pro/15 text-pro` per design.md.
 
 ## History
 
