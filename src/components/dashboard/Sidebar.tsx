@@ -4,9 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Folder, Folders, Inbox, LayoutGrid, Star, type LucideIcon } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { TYPE_ICONS } from "@/lib/item-type-icons";
 import { currentUser } from "@/lib/mock-data";
+import { isProItemType } from "@/lib/pro";
 import type { SidebarCollection } from "@/types/collection";
 import type { SidebarNav } from "@/types/nav";
 
@@ -77,6 +79,7 @@ export function Sidebar({ nav, collapsed, mobileOpen, onNavigate }: SidebarProps
                 icon={TYPE_ICONS[type.icon] ?? Folder}
                 iconColor={type.color}
                 label={type.name}
+                pro={isProItemType(type.name)}
                 badge={type.itemCount}
                 collapsed={collapsed}
                 active={pathname === href}
@@ -152,6 +155,8 @@ interface NavLinkProps {
   /** Renders a colored circle in place of an icon — how collections are marked. */
   dotColor?: string | null;
   label: string;
+  /** Marks a Pro-only destination with a PRO badge beside the label. */
+  pro?: boolean;
   badge?: number;
   /** Sits after the label, where a badge would go — the favorite star. */
   trailing?: React.ReactNode;
@@ -166,6 +171,7 @@ function NavLink({
   iconColor,
   dotColor,
   label,
+  pro,
   badge,
   trailing,
   collapsed,
@@ -197,7 +203,14 @@ function NavLink({
       )}
       {!collapsed && (
         <>
-          <span className="flex-1 truncate">{label}</span>
+          <span className="flex min-w-0 flex-1 items-center gap-1.5">
+            <span className="truncate">{label}</span>
+            {pro && (
+              <Badge className="h-4 bg-pro/15 px-1.5 text-[10px] font-semibold tracking-wide text-pro">
+                PRO
+              </Badge>
+            )}
+          </span>
           {badge !== undefined && <span className="text-xs text-muted-foreground">{badge}</span>}
           {trailing}
         </>
