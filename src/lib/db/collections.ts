@@ -1,12 +1,13 @@
 import { connection } from "next/server";
 
 import { prisma } from "@/lib/prisma";
-import type { CollectionItemType, RecentCollection } from "@/types/collection";
+import type { RecentCollection } from "@/types/collection";
+import type { ItemTypeSummary } from "@/types/item";
 
 const RECENT_COLLECTIONS_LIMIT = 6;
 
 interface TypeTally {
-  type: CollectionItemType;
+  type: ItemTypeSummary;
   count: number;
   /** Earliest item createdAt for this type — the last tie-break. */
   firstSeenAt: Date;
@@ -65,7 +66,7 @@ export async function getRecentCollections(userId: string): Promise<RecentCollec
 interface CollectionItemRow {
   item: {
     createdAt: Date;
-    itemType: CollectionItemType;
+    itemType: ItemTypeSummary;
   };
 }
 
@@ -102,7 +103,7 @@ function tallyItemTypes(rows: CollectionItemRow[]): TypeTally[] {
 function pickDominantType(
   tallies: TypeTally[],
   defaultTypeId: string | null
-): CollectionItemType | null {
+): ItemTypeSummary | null {
   if (tallies.length === 0) {
     return null;
   }

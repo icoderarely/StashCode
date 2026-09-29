@@ -13,8 +13,10 @@ export function formatHeaderDate(date: Date = MOCK_NOW): string {
   });
 }
 
-export function formatRelativeTime(dateString: string, now: Date = MOCK_NOW): string {
-  const diffMs = now.getTime() - new Date(dateString).getTime();
+// Items come from the database now, so relative times are measured against
+// the real clock rather than the mock layer's anchored "now".
+export function formatRelativeTime(date: Date | string, now: Date = new Date()): string {
+  const diffMs = now.getTime() - new Date(date).getTime();
   const diffMinutes = Math.round(diffMs / 60_000);
   const diffHours = Math.round(diffMs / 3_600_000);
   const diffDays = Math.floor(diffMs / 86_400_000);
