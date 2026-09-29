@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Folder, Inbox, LayoutGrid, Star, type LucideIcon } from "lucide-react";
+import { Folder, Folders, Inbox, LayoutGrid, Star, type LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { TYPE_ICONS } from "@/lib/item-type-icons";
-import { type Collection, collections, currentUser, itemTypes, items } from "@/lib/mock-data";
+import { currentUser } from "@/lib/mock-data";
+import type { SidebarCollection } from "@/types/collection";
+import type { SidebarNav } from "@/types/nav";
 
 function initials(name: string) {
   return name
@@ -18,14 +20,14 @@ function initials(name: string) {
 }
 
 interface SidebarProps {
+  nav: SidebarNav;
   collapsed: boolean;
   mobileOpen: boolean;
   onNavigate: () => void;
 }
 
-export function Sidebar({ collapsed, mobileOpen, onNavigate }: SidebarProps) {
+export function Sidebar({ nav, collapsed, mobileOpen, onNavigate }: SidebarProps) {
   const pathname = usePathname();
-  const favoriteItemCount = items.filter((item) => item.isFavorite).length;
 
   return (
     <aside
@@ -49,7 +51,7 @@ export function Sidebar({ collapsed, mobileOpen, onNavigate }: SidebarProps) {
             href="/items"
             icon={Inbox}
             label="All items"
-            badge={items.length}
+            badge={nav.itemCount}
             collapsed={collapsed}
             active={pathname === "/items"}
             onNavigate={onNavigate}
@@ -58,7 +60,7 @@ export function Sidebar({ collapsed, mobileOpen, onNavigate }: SidebarProps) {
             href="/favorites"
             icon={Star}
             label="Favorites"
-            badge={favoriteItemCount}
+            badge={nav.favoriteItemCount}
             collapsed={collapsed}
             active={pathname === "/favorites"}
             onNavigate={onNavigate}
@@ -66,18 +68,16 @@ export function Sidebar({ collapsed, mobileOpen, onNavigate }: SidebarProps) {
         </SidebarSection>
 
         <SidebarSection title="Item types" collapsed={collapsed}>
-          {itemTypes.map((type) => {
-            const Icon = TYPE_ICONS[type.icon];
-            const count = items.filter((item) => item.itemTypeId === type.id).length;
+          {nav.itemTypes.map((type) => {
             const href = `/items/${type.name.toLowerCase()}s`;
             return (
               <NavLink
                 key={type.id}
                 href={href}
-                icon={Icon}
+                icon={TYPE_ICONS[type.icon] ?? Folder}
                 iconColor={type.color}
                 label={type.name}
-                badge={count}
+                badge={type.itemCount}
                 collapsed={collapsed}
                 active={pathname === href}
                 onNavigate={onNavigate}
@@ -87,7 +87,7 @@ export function Sidebar({ collapsed, mobileOpen, onNavigate }: SidebarProps) {
         </SidebarSection>
 
         <SidebarSection title="Collections" collapsed={collapsed}>
-          {collections.map((collection) => (
+          {nav.collections.map((collection) => (
             <CollectionLink
               key={collection.id}
               collection={collection}
@@ -96,6 +96,14 @@ export function Sidebar({ collapsed, mobileOpen, onNavigate }: SidebarProps) {
               onNavigate={onNavigate}
             />
           ))}
+          <NavLink
+            href="/collections"
+            icon={Folders}
+            label="View all collections"
+            collapsed={collapsed}
+            active={pathname === "/collections"}
+            onNavigate={onNavigate}
+          />
         </SidebarSection>
       </nav>
 
@@ -141,8 +149,12 @@ interface NavLinkProps {
   href: string;
   icon?: LucideIcon;
   iconColor?: string;
+  /** Renders a colored circle in place of an icon — how collections are marked. */
+  dotColor?: string | null;
   label: string;
   badge?: number;
+  /** Sits after the label, where a badge would go — the favorite star. */
+  trailing?: React.ReactNode;
   collapsed: boolean;
   active: boolean;
   onNavigate: () => void;
@@ -152,8 +164,10 @@ function NavLink({
   href,
   icon: Icon,
   iconColor,
+  dotColor,
   label,
   badge,
+  trailing,
   collapsed,
   active,
   onNavigate,
@@ -168,11 +182,24 @@ function NavLink({
         active ? "bg-secondary text-foreground" : "text-muted-foreground"
       )}
     >
-      {Icon && <Icon className="size-4 shrink-0" style={iconColor ? { color: iconColor } : undefined} />}
+      {dotColor !== undefined ? (
+        // Kept in an icon-sized box so dots and icons line up down the list.
+        <span className="flex size-4 shrink-0 items-center justify-center">
+          <span
+            className={cn("size-2.5 rounded-full", dotColor === null && "bg-muted-foreground/40")}
+            style={dotColor ? { backgroundColor: dotColor } : undefined}
+          />
+        </span>
+      ) : (
+        Icon && (
+          <Icon className="size-4 shrink-0" style={iconColor ? { color: iconColor } : undefined} />
+        )
+      )}
       {!collapsed && (
         <>
           <span className="flex-1 truncate">{label}</span>
           {badge !== undefined && <span className="text-xs text-muted-foreground">{badge}</span>}
+          {trailing}
         </>
       )}
     </Link>
@@ -180,7 +207,7 @@ function NavLink({
 }
 
 interface CollectionLinkProps {
-  collection: Collection;
+  collection: SidebarCollection;
   collapsed: boolean;
   active: boolean;
   onNavigate: () => void;
@@ -190,8 +217,13 @@ function CollectionLink({ collection, collapsed, active, onNavigate }: Collectio
   return (
     <NavLink
       href={`/collections/${collection.id}`}
-      icon={Folder}
+      dotColor={collection.dominantType?.color ?? null}
       label={collection.name}
+      trailing={
+        collection.isFavorite ? (
+          <Star className="size-3 shrink-0 fill-pro text-pro" />
+        ) : undefined
+      }
       collapsed={collapsed}
       active={active}
       onNavigate={onNavigate}

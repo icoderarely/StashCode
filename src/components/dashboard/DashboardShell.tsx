@@ -4,14 +4,17 @@ import { useState } from "react";
 
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { TopBar } from "@/components/dashboard/TopBar";
+import type { SidebarNav } from "@/types/nav";
 
 const MOBILE_BREAKPOINT_PX = 768;
 
 interface DashboardShellProps {
+  /** Fetched by the page — the sidebar is a client component and cannot query. */
+  nav: SidebarNav;
   children: React.ReactNode;
 }
 
-export function DashboardShell({ children }: DashboardShellProps) {
+export function DashboardShell({ nav, children }: DashboardShellProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -35,6 +38,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
           />
         )}
         <Sidebar
+          nav={nav}
           collapsed={collapsed}
           mobileOpen={mobileOpen}
           onNavigate={() => setMobileOpen(false)}

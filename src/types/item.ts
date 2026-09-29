@@ -10,6 +10,11 @@ export interface ItemTypeSummary {
   color: string; // hex
 }
 
+/** An item type in the sidebar's type list, with the user's count for it. */
+export interface ItemTypeNavEntry extends ItemTypeSummary {
+  itemCount: number;
+}
+
 export interface DashboardItem {
   id: string;
   title: string;

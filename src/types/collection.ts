@@ -13,3 +13,12 @@ export interface RecentCollection {
   /** Distinct types present, most-used first — drives the card's icon row. */
   itemTypes: ItemTypeSummary[];
 }
+
+/** A collection in the sidebar list: a colored dot and a favorite marker. */
+export interface SidebarCollection {
+  id: string;
+  name: string;
+  isFavorite: boolean;
+  /** Type with the most items — the dot's color; null when the collection is empty. */
+  dominantType: ItemTypeSummary | null;
+}

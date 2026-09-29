@@ -1,10 +1,33 @@
 import { connection } from "next/server";
 
 import { prisma } from "@/lib/prisma";
-import type { RecentCollection } from "@/types/collection";
+import type { RecentCollection, SidebarCollection } from "@/types/collection";
 import type { ItemTypeSummary } from "@/types/item";
 
 const RECENT_COLLECTIONS_LIMIT = 6;
+
+// design.md: the sidebar lists up to five recent collections.
+const SIDEBAR_COLLECTIONS_LIMIT = 5;
+
+// Both consumers color a collection by its most-used item type, which means
+// pulling each member item's type either way.
+const COLLECTION_SELECT = {
+  id: true,
+  name: true,
+  isFavorite: true,
+  defaultTypeId: true,
+  _count: { select: { items: true } },
+  items: {
+    select: {
+      item: {
+        select: {
+          createdAt: true,
+          itemType: { select: { id: true, name: true, icon: true, color: true } },
+        },
+      },
+    },
+  },
+} as const;
 
 interface TypeTally {
   type: ItemTypeSummary;
@@ -26,22 +49,7 @@ export async function getRecentCollections(userId: string): Promise<RecentCollec
     where: { userId },
     orderBy: { updatedAt: "desc" },
     take: RECENT_COLLECTIONS_LIMIT,
-    select: {
-      id: true,
-      name: true,
-      defaultTypeId: true,
-      _count: { select: { items: true } },
-      items: {
-        select: {
-          item: {
-            select: {
-              createdAt: true,
-              itemType: { select: { id: true, name: true, icon: true, color: true } },
-            },
-          },
-        },
-      },
-    },
+    select: COLLECTION_SELECT,
   });
 
   return collections.map((collection) => {
@@ -61,6 +69,28 @@ export async function getRecentCollections(userId: string): Promise<RecentCollec
         : types,
     };
   });
+}
+
+/**
+ * Collections for the sidebar's list: the same most-recently-updated ordering as
+ * the dashboard grid, trimmed to what a nav row shows.
+ */
+export async function getSidebarCollections(userId: string): Promise<SidebarCollection[]> {
+  await connection();
+
+  const collections = await prisma.collection.findMany({
+    where: { userId },
+    orderBy: { updatedAt: "desc" },
+    take: SIDEBAR_COLLECTIONS_LIMIT,
+    select: COLLECTION_SELECT,
+  });
+
+  return collections.map((collection) => ({
+    id: collection.id,
+    name: collection.name,
+    isFavorite: collection.isFavorite,
+    dominantType: pickDominantType(tallyItemTypes(collection.items), collection.defaultTypeId),
+  }));
 }
 
 interface CollectionItemRow {
