@@ -1,9 +1,14 @@
 import { connection } from "next/server";
 
 import { prisma } from "@/lib/prisma";
-import type { DashboardItem } from "@/types/item";
+import type { DashboardItem, ItemTypeNavEntry } from "@/types/item";
 
 const RECENT_ITEMS_LIMIT = 6;
+
+// ItemType has no ordering column, so a plain findMany comes back in whatever
+// order Postgres feels like. This is the canonical order from
+// context/project-overview.md, which prisma/seed-data.ts also inserts in.
+const SYSTEM_TYPE_ORDER = ["Snippet", "Prompt", "Command", "Note", "File", "Image", "Link"];
 
 // The card shows one owning collection, so only the oldest membership is
 // fetched rather than every row in the join table.
@@ -69,4 +74,53 @@ export async function getPinnedItems(userId: string): Promise<DashboardItem[]> {
   });
 
   return items.map(toDashboardItem);
+}
+
+/**
+ * The system item types for the sidebar's type list, each with how many items
+ * the user has of that type. Custom (user-owned) types are Pro and post-MVP, so
+ * only system types are listed for now.
+ */
+export async function getItemTypeNav(userId: string): Promise<ItemTypeNavEntry[]> {
+  // The sidebar counts must reflect the database on every request, so keep this
+  // query out of the build-time prerender.
+  await connection();
+
+  const [types, counts] = await Promise.all([
+    prisma.itemType.findMany({
+      where: { isSystem: true },
+      select: { id: true, name: true, icon: true, color: true },
+    }),
+    // One grouped count beats a per-type count query, and a filtered relation
+    // count on ItemType would count every user's items, not just this one's.
+    prisma.item.groupBy({
+      by: ["itemTypeId"],
+      where: { userId },
+      _count: { _all: true },
+    }),
+  ]);
+
+  const countsByTypeId = new Map(counts.map((row) => [row.itemTypeId, row._count._all]));
+
+  return types
+    .map((type) => ({ ...type, itemCount: countsByTypeId.get(type.id) ?? 0 }))
+    .sort(compareTypeOrder);
+}
+
+/** Canonical order first, then any unrecognized type alphabetically. */
+function compareTypeOrder(a: { name: string }, b: { name: string }): number {
+  const aIndex = SYSTEM_TYPE_ORDER.indexOf(a.name);
+  const bIndex = SYSTEM_TYPE_ORDER.indexOf(b.name);
+
+  if (aIndex === -1 && bIndex === -1) {
+    return a.name.localeCompare(b.name);
+  }
+  if (aIndex === -1) {
+    return 1;
+  }
+  if (bIndex === -1) {
+    return -1;
+  }
+
+  return aIndex - bIndex;
 }
