@@ -21,3 +21,7 @@ Read the following to get the full context of the project:
 - @context/ai-interaction.md
 - @context/current-feature.md
 - @context/design.md
+
+## Testing
+
+Dont run playwright tests until asked to

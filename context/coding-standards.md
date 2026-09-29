@@ -64,6 +64,13 @@ Example v4 configuration:
 - Constants: SCREAMING_SNAKE_CASE
 - Types/Interfaces: PascalCase (no prefix)
 
+### Product name
+
+The product is **StashCode** — one word, capital `S` and `C`. Wherever any other
+name for it turns up — UI copy, metadata, comments, docs, seed/test data, commit
+messages, email addresses — change it to StashCode. The only lowercase form is
+the package name (`stashcode`) and identifiers derived from it.
+
 ## Styling
 
 - Tailwind CSS for all styling
